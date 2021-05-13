@@ -54,33 +54,6 @@ import static com.hbisoft.hbrecorder.Constants.MAX_FILE_SIZE_REACHED_ERROR;
 import static com.hbisoft.hbrecorder.Constants.SETTINGS_ERROR;
 
 
-/**
- * Created by HBiSoft on 13 Aug 2019
- * Copyright (c) 2019 . All rights reserved.
- */
-
-/*
-* Implementation Steps
-*
-* 1. Implement HBRecorderListener by calling implements HBRecorderListener
-*    After this you have to implement the methods by pressing (Alt + Enter)
-*
-* 2. Declare HBRecorder
-*
-* 3. Init implements HBRecorderListener by calling hbRecorder = new HBRecorder(this, this);
-*
-* 4. Set adjust provided settings
-*
-* 5. Start recording by first calling:
-* MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-  Intent permissionIntent = mediaProjectionManager != null ? mediaProjectionManager.createScreenCaptureIntent() : null;
-  startActivityForResult(permissionIntent, SCREEN_RECORD_REQUEST_CODE);
-
-* 6. Then in onActivityResult call hbRecorder.onActivityResult(resultCode, data, this);
-*
-* 7. Then you can start recording by calling hbRecorder.startScreenRecording(data);
-*
-* */
 
 @SuppressWarnings({"SameParameterValue"})
 public class MainActivity extends AppCompatActivity implements HBRecorderListener {
@@ -177,9 +150,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 
     }
 
-    //Create Folder
-    //Only call this on Android 9 and lower (getExternalStoragePublicDirectory is deprecated)
-    //This can still be used on Android 10> but you will have to add android:requestLegacyExternalStorage="true" in your Manifest
+   
     private void createFolder() {
         File f1 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "HBRecorder");
         if (!f1.exists()) {
