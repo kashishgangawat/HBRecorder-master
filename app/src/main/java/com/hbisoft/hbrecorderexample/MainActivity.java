@@ -21,6 +21,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -42,12 +47,26 @@ import com.hbisoft.hbrecorder.HBRecorderListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.hbisoft.hbrecorder.Constants.MAX_FILE_SIZE_REACHED_ERROR;
@@ -61,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
     private static final int SCREEN_RECORD_REQUEST_CODE = 777;
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
-    private boolean hasPermissions = false;
-
+    private boolean hasPermissions = true;
+    ///////////////////////////////////////////
+    WebView myWebView;
     //Declare HBRecorder
     private HBRecorder hbRecorder;
 
@@ -89,12 +109,71 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ///////////////////////////////////////////////////
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ,Manifest.permission.RECORD_AUDIO,Manifest.permission.CAMERA,Manifest.permission.INTERNET,Manifest.permission.FOREGROUND_SERVICE}, PackageManager.PERMISSION_GRANTED);
+
+
+
         setContentView(R.layout.activity_main);
+
+        myWebView=(WebView)findViewById(R.id.simpleWebView);
+
+        myWebView.setWebViewClient(new MyWebViewClient());
+        String url = "https://videostoreapp5.z22.web.core.windows.net/";
+        myWebView.getSettings().setJavaScriptEnabled(true);
+        myWebView.loadUrl(url);
+
+
+
+//        myWebView.loadUrl("https://teststoragevid.z13.web.core.windows.net/");
+//
+        WebSettings settings = myWebView.getSettings();
+//
+//
+//
+//
+//
+//
+//
+//        setContentView(myWebView);
+//
+//
+        settings.setJavaScriptEnabled(true);
+        myWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        myWebView.setWebChromeClient(new WebChromeClient() {
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    request.grant(request.getResources());
+                }
+
+            }
+
+        });
+
+//
+//
+//
+//
+        settings.setSupportMultipleWindows(true);
+        settings.setAllowContentAccess(true);
+
+        settings.setLoadWithOverviewMode(true);
+
+        settings.setDomStorageEnabled(true);
+
+        settings.setAllowFileAccess(true);
+
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+/////////////////////////////////////////////////////////
 
         initViews();
         setOnClickListeners();
-        setRadioGroupCheckListener();
-        setRecordAudioCheckBoxListener();
+//        setRadioGroupCheckListener();
+//        setRecordAudioCheckBoxListener();
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE
                         ,Manifest.permission.RECORD_AUDIO,Manifest.permission.CAMERA,Manifest.permission.INTERNET,Manifest.permission.FOREGROUND_SERVICE}, PackageManager.PERMISSION_GRANTED);
@@ -162,11 +241,18 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 
     //Init Views
     private void initViews() {
-        startbtn = findViewById(R.id.button_start);
-        radioGroup = findViewById(R.id.radio_group);
-        recordAudioCheckBox = findViewById(R.id.audio_check_box);
-        custom_settings_switch = findViewById(R.id.custom_settings_switch);
-        maxFileSizeInK = findViewById(R.id.max_file_size);
+        startbtn = findViewById(R.id.startBtn);
+        //radioGroup = findViewById(R.id.radio_group);
+        //recordAudioCheckBox = findViewById(R.id.audio_check_box);
+       // custom_settings_switch = findViewById(R.id.custom_settings_switch);
+       // maxFileSizeInK = findViewById(R.id.max_file_size);
+    }
+    private class MyWebViewClient extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return true;
+        }
     }
 
     //Start Button OnClickListener
@@ -199,32 +285,32 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
     }
 
     //Check if HD/SD Video should be recorded
-    private void setRadioGroupCheckListener() {
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-
-                if (checkedId == R.id.hd_button) {
-                    //Ser HBRecorder to HD
-                    wasHDSelected = true;
-                } else if (checkedId == R.id.sd_button) {
-                    //Ser HBRecorder to SD
-                    wasHDSelected = false;
-                }
-            }
-        });
-    }
+//    private void setRadioGroupCheckListener() {
+//        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+//
+//                if (checkedId == R.id.hd_button) {
+//                    //Ser HBRecorder to HD
+//                    wasHDSelected = true;
+//                } else if (checkedId == R.id.sd_button) {
+//                    //Ser HBRecorder to SD
+//                    wasHDSelected = false;
+//                }
+//            }
+//        });
+//    }
 
     //Check if audio should be recorded
-    private void setRecordAudioCheckBoxListener() {
-        recordAudioCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                //Enable/Disable audio
-                isAudioEnabled = isChecked;
-            }
-        });
-    }
+//    private void setRecordAudioCheckBoxListener() {
+//        recordAudioCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+//                //Enable/Disable audio
+//                isAudioEnabled = isChecked;
+//            }
+//        });
+//    }
 
     @Override
     public void HBRecorderOnStart() {
@@ -298,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
     //hbRecorder.startScreenRecording(data); should only be called in onActivityResult
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void startRecordingScreen() {
-        if (custom_settings_switch.isChecked()) {
+        if (false) {
             //WHEN SETTING CUSTOM SETTINGS YOU MUST SET THIS!!!
             hbRecorder.enableCustomSettings();
             customSettings();
@@ -482,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void setRecorderMaxFileSize() {
-        String s = maxFileSizeInK.getText().toString();
+        String s = "";
         long maxFileSizeInKilobytes;
         try {
             maxFileSizeInKilobytes = Long.parseLong(s);
@@ -567,10 +653,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
         }
     }
 
-    //For Android 10> we will pass a Uri to HBRecorder
-    //This is not necessary - You can still use getExternalStoragePublicDirectory
-    //But then you will have to add android:requestLegacyExternalStorage="true" in your Manifest
-    //IT IS IMPORTANT TO SET THE FILE NAME THE SAME AS THE NAME YOU USE FOR TITLE AND DISPLAY_NAME
+
     ContentResolver resolver;
     ContentValues contentValues;
     Uri mUri;
@@ -612,6 +695,113 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         icon.compress(Bitmap.CompressFormat.PNG, 100, stream);
         return stream.toByteArray();
+    }
+
+
+
+    public void Screenshot(View view){
+
+        View view1=getWindow().getDecorView().findViewById(R.id.simpleWebView);
+        view1.setDrawingCacheEnabled(true);
+        Bitmap bitmap = Bitmap.createBitmap(view1.getDrawingCache());
+        view1.setDrawingCacheEnabled(false);
+
+        String filePath = Environment.getExternalStorageDirectory()+"/Download/"+ Calendar.getInstance().getTime().toString()+".jpg";
+        File fileScreenshot = new File(filePath);
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream(fileScreenshot);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(500, TimeUnit.SECONDS).readTimeout(500,TimeUnit.SECONDS).build();
+
+        MediaType mediaType = MediaType.parse("text/plain");
+
+        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+
+                .addFormDataPart("UserId","YP+0J59d+4/c71CAf9TC/Q==")
+
+                .addFormDataPart("ClaimRefNo","MOT01029113")
+
+                .addFormDataPart("VehicleRegNo","MH-01-AA-2342")
+
+                .addFormDataPart("SurveyType","Documents")
+
+                .addFormDataPart("RegistrationType","V")
+
+                .addFormDataPart("PolicyId","3003/50776304/00/001")
+
+                .addFormDataPart("EngineNumber","A6F30469")
+
+                .addFormDataPart("ChasisNumber","65F11509")
+
+                .addFormDataPart("","filePath",
+
+                        RequestBody.create(MediaType.parse("application/octet-stream"),
+
+                                new File(filePath)))
+
+                .build();
+
+        Request request = new Request.Builder()
+
+                .url("https://iptrapp03.insurancearticlez.com/FastTrack_APP/UploadClaimsService.svc/UploadImageFileRealtimeV1")
+
+                .method("POST", body)
+
+                .build();
+
+//        try {
+//            Response response = client.newCall(request).execute();
+//            ResponseBody responseBody = response.body();
+//            if (!response.isSuccessful()) {
+//                throw new IOException("Unexpected code " + response);
+//            }
+//
+//            Log.i("data", responseBody.string());
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) {
+                try {
+                    ResponseBody responseBody = response.body();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+                    else{
+                        // Toast.makeText(getApplicationContext(),"Screenshot taken and Uploaded",Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                for(int i=0;i<2;i++){
+                                    final Toast toast = Toast.makeText(getApplicationContext(), "Uploaded the screenshot",Toast.LENGTH_LONG);
+                                    toast.show();}
+                            }
+                        });
+                    }
+
+                    Log.i("data", responseBody.string());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+
+
     }
 
 }
