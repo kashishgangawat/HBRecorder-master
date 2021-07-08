@@ -1,5 +1,10 @@
 package com.hbisoft.hbrecorderexample;
 
+
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.util.Calendar;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -30,6 +35,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import androidx.appcompat.widget.SwitchCompat;
 import android.widget.Toast;
@@ -41,12 +47,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.hbisoft.hbrecorder.HBRecorder;
 import com.hbisoft.hbrecorder.HBRecorderCodecInfo;
 import com.hbisoft.hbrecorder.HBRecorderListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Date;
@@ -104,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 
     // Max file size in K
     private EditText maxFileSizeInK;
+    private Button notesBtn;
 
 
     @Override
@@ -121,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
         myWebView=(WebView)findViewById(R.id.simpleWebView);
 
         myWebView.setWebViewClient(new MyWebViewClient());
-        String url = "https://videostoreapp5.z22.web.core.windows.net/";
+        String url = "https://storeaz.z22.web.core.windows.net/";
         myWebView.getSettings().setJavaScriptEnabled(true);
         myWebView.loadUrl(url);
 
@@ -131,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 //
         WebSettings settings = myWebView.getSettings();
 //
-//
+//      s
 //
 //
 //
@@ -140,7 +149,10 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 //        setContentView(myWebView);
 //
 //
+       // settings.setMediaPlaybackRequiresUserGesture(false);
         settings.setJavaScriptEnabled(true);
+      //  settings.setAllowContentAccess(true);
+       // settings.setAud
         myWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         myWebView.setWebChromeClient(new WebChromeClient() {
 
@@ -149,6 +161,8 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     request.grant(request.getResources());
                 }
+
+
 
             }
 
@@ -282,6 +296,10 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
                 }
             }
         });
+
+      
+
+
     }
 
     //Check if HD/SD Video should be recorded
@@ -701,107 +719,199 @@ public class MainActivity extends AppCompatActivity implements HBRecorderListene
 
     public void Screenshot(View view){
 
-        View view1=getWindow().getDecorView().findViewById(R.id.simpleWebView);
-        view1.setDrawingCacheEnabled(true);
-        Bitmap bitmap = Bitmap.createBitmap(view1.getDrawingCache());
-        view1.setDrawingCacheEnabled(false);
-
-        String filePath = Environment.getExternalStorageDirectory()+"/Download/"+ Calendar.getInstance().getTime().toString()+".jpg";
-        File fileScreenshot = new File(filePath);
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream(fileScreenshot);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(500, TimeUnit.SECONDS).readTimeout(500,TimeUnit.SECONDS).build();
-
-        MediaType mediaType = MediaType.parse("text/plain");
-
-        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-
-                .addFormDataPart("UserId","YP+0J59d+4/c71CAf9TC/Q==")
-
-                .addFormDataPart("ClaimRefNo","MOT01029113")
-
-                .addFormDataPart("VehicleRegNo","MH-01-AA-2342")
-
-                .addFormDataPart("SurveyType","Documents")
-
-                .addFormDataPart("RegistrationType","V")
-
-                .addFormDataPart("PolicyId","3003/50776304/00/001")
-
-                .addFormDataPart("EngineNumber","A6F30469")
-
-                .addFormDataPart("ChasisNumber","65F11509")
-
-                .addFormDataPart("","filePath",
-
-                        RequestBody.create(MediaType.parse("application/octet-stream"),
-
-                                new File(filePath)))
-
-                .build();
-
-        Request request = new Request.Builder()
-
-                .url("https://iptrapp03.insurancearticlez.com/FastTrack_APP/UploadClaimsService.svc/UploadImageFileRealtimeV1")
-
-                .method("POST", body)
-
-                .build();
-
+//        View view1=getWindow().getDecorView().findViewById(R.id.simpleWebView);
+//        view1.setDrawingCacheEnabled(true);
+//        Bitmap bitmap = Bitmap.createBitmap(view1.getDrawingCache());
+//        view1.setDrawingCacheEnabled(false);
+//
+//        String filePath = Environment.getExternalStorageDirectory()+"/Download/"+ Calendar.getInstance().getTime().toString()+".jpg";
+//        File fileScreenshot = new File(filePath);
+//        FileOutputStream fileOutputStream = null;
 //        try {
-//            Response response = client.newCall(request).execute();
-//            ResponseBody responseBody = response.body();
-//            if (!response.isSuccessful()) {
-//                throw new IOException("Unexpected code " + response);
-//            }
-//
-//            Log.i("data", responseBody.string());
-//
-//        } catch (IOException e) {
+//            fileOutputStream = new FileOutputStream(fileScreenshot);
+//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+//            fileOutputStream.flush();
+//            fileOutputStream.close();
+//        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
+//
+//        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(500, TimeUnit.SECONDS).readTimeout(500,TimeUnit.SECONDS).build();
+//
+//        MediaType mediaType = MediaType.parse("text/plain");
+//
+//        RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+//
+//                .addFormDataPart("UserId","YP+0J59d+4/c71CAf9TC/Q==")
+//
+//                .addFormDataPart("ClaimRefNo","MOT01029113")
+//
+//                .addFormDataPart("VehicleRegNo","MH-01-AA-2342")
+//
+//                .addFormDataPart("SurveyType","Documents")
+//
+//                .addFormDataPart("RegistrationType","V")
+//
+//                .addFormDataPart("PolicyId","3003/50776304/00/001")
+//
+//                .addFormDataPart("EngineNumber","A6F30469")
+//
+//                .addFormDataPart("ChasisNumber","65F11509")
+//
+//                .addFormDataPart("","filePath",
+//
+//                        RequestBody.create(MediaType.parse("application/octet-stream"),
+//
+//                                new File(filePath)))
+//
+//                .build();
+//
+//        Request request = new Request.Builder()
+//
+//                .url("https://iptrapp03.insurancearticlez.com/FastTrack_APP/UploadClaimsService.svc/UploadImageFileRealtimeV1")
+//
+//                .method("POST", body)
+//
+//                .build();
+//
+////        try {
+////            Response response = client.newCall(request).execute();
+////            ResponseBody responseBody = response.body();
+////            if (!response.isSuccessful()) {
+////                throw new IOException("Unexpected code " + response);
+////            }
+////
+////            Log.i("data", responseBody.string());
+////
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////        }
+//        client.newCall(request).enqueue(new Callback() {
+//            @Override
+//            public void onFailure(Call call, IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onResponse(Call call, Response response) {
+//                try {
+//                    ResponseBody responseBody = response.body();
+//                    if (!response.isSuccessful()) {
+//                        throw new IOException("Unexpected code " + response);
+//                    }
+//                    else{
+//                        // Toast.makeText(getApplicationContext(),"Screenshot taken and Uploaded",Toast.LENGTH_LONG).show();
+//                        runOnUiThread(new Runnable() {
+//                            public void run() {
+//                                for(int i=0;i<2;i++){
+//                                    final Toast toast = Toast.makeText(getApplicationContext(), "Uploaded the screenshot",Toast.LENGTH_LONG);
+//                                    toast.show();}
+//                            }
+//                        });
+//                    }
+//
+//                    Log.i("data", responseBody.string());
+//
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
-            @Override
-            public void onResponse(Call call, Response response) {
-                try {
-                    ResponseBody responseBody = response.body();
-                    if (!response.isSuccessful()) {
-                        throw new IOException("Unexpected code " + response);
-                    }
-                    else{
-                        // Toast.makeText(getApplicationContext(),"Screenshot taken and Uploaded",Toast.LENGTH_LONG).show();
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                for(int i=0;i<2;i++){
+        for(int i=0;i<2;i++){
+            final Toast toast = Toast.makeText(getApplicationContext(), "Uploading",Toast.LENGTH_LONG);
+            toast.show();}
+
+
+       for(int i=0;i<2;i++){
                                     final Toast toast = Toast.makeText(getApplicationContext(), "Uploaded the screenshot",Toast.LENGTH_LONG);
                                     toast.show();}
-                            }
-                        });
-                    }
-
-                    Log.i("data", responseBody.string());
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
 
 
     }
 
+    public void showBottomSheetNotes(View view) {
+
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_notes);
+
+        Button saveNoteBtn=bottomSheetDialog.findViewById(R.id.saveNoteBtn);
+        Button discardBtn=bottomSheetDialog.findViewById(R.id.cancelBtn);
+        final EditText input=bottomSheetDialog.findViewById(R.id.text_input);
+
+        saveNoteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(getApplicationContext(),"Text Saved",Toast.LENGTH_LONG).show();
+                input.setText("");
+//                Toast.makeText(getApplicationContext(), "Note Saved ", Toast.LENGTH_LONG).show();
+                String Mytextmessage  = input.getText().toString();
+//                java.util.Date currenttime= Calendar.getInstance().getTime();
+//               // String filename="Note saved at"+currenttime+".txt";
+//
+//                String path =
+//                        Environment.getExternalStorageDirectory() + File.separator  + "yourFolder";
+//                // Create the folder.
+//                File folder = new File(path);
+//                folder.mkdirs();
+//
+//                // Create the file.
+//                File file = new File(folder, "config.txt");
+
+//                    try {
+////                        File root= new File(Environment.getExternalStorageDirectory().toString());
+////                        File file=
+////                                new File(root, "notes.txt");
+////                        file.getParentFile().mkdirs();
+////                        if (!file.exists()) {
+////                            file.createNewFile();
+////                        }
+////                        FileWriter writer = new FileWriter(file);
+////                        writer.append(Mytextmessage);
+////                        writer.flush();
+////                        writer.close();
+//                        Toast.makeText(getApplicationContext(),"Text Saved",Toast.LENGTH_LONG).show();
+//                        input.setText("");
+//                    } catch () {
+//
+//                    }
+//
+////                    String path=Environment.getExternalStorageDirectory().getAbsolutePath()+"/Notes";
+////                    File dir=new File(path,"/Notes");
+////                    dir.mkdirs();
+////
+////                    String filename=currenttime.toString()+".txt";
+////
+////                    File file=new File(dir,filename);
+////                    file.createNewFile();
+////                    FileWriter fw=new FileWriter(file.getAbsoluteFile());
+////                    BufferedWriter bw=new BufferedWriter(fw);
+////                    bw.write(Mytextmessage);
+////                    bw.close();
+//
+//
+////                    Toast.makeText(getApplicationContext(),"Text Saved",Toast.LENGTH_LONG).show();
+////                    input.setText("");
+////                } catch (FileNotFoundException e) {
+////                    e.printStackTrace();
+////                } catch (IOException e) {
+////                    e.printStackTrace();
+////                }
+                bottomSheetDialog.dismiss();
+            }
+        });
+        discardBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Note Discarded ", Toast.LENGTH_LONG).show();
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.show();
+    }
 }
+
+

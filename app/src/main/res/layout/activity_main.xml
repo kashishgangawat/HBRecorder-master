@@ -4,39 +4,60 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
+
+
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="76dp"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:weightSum="3">
 
         <Button
             android:id="@+id/takescreenshot"
 
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:layout_weight="1"
 
+            android:layout_weight="1"
             android:onClick="Screenshot"
             android:text="Take Screenshot"
             android:textColor="#44f"
             android:textSize="14sp"
-            android:textStyle="bold"
-            style="?android:attr/borderlessButtonStyle"/>
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/startBtn"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_weight="1"
 
+            android:layout_weight="1"
             android:text="Start Recording"
             android:textColor="#44f"
             android:textSize="14sp"
-            android:textStyle="bold"
-            style="?android:attr/borderlessButtonStyle"/>
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/notesBtn"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:onClick="showBottomSheetNotes"
+            android:layout_weight="1"
+            android:text="Add Notes"
+            android:textColor="#44f"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+
+
+
+
     </LinearLayout>
     <WebView
         android:id="@+id/simpleWebView"
@@ -44,6 +65,11 @@
         android:layout_height="fill_parent"
         android:layout_marginTop="20dp"
         android:scrollbars="none" />
+
+
+
+
+
 
 
 
